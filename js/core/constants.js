@@ -9,16 +9,18 @@ const GAME_CONFIG = {
 };
 
 const COLORS = {
-    I: '#00f0f0', // Cyan
-    O: '#f0f000', // Yellow
-    T: '#a000f0', // Purple
-    S: '#00f000', // Green
-    Z: '#f00000', // Red
-    J: '#0000f0', // Blue
-    L: '#f0a000', // Orange
-    GHOST: 'rgba(255, 255, 255, 0.3)',
+    I: '#00f5f5', // Enhanced Cyan - brighter
+    O: '#f5f500', // Enhanced Yellow - more vibrant
+    T: '#b000f5', // Enhanced Purple - richer
+    S: '#00f500', // Enhanced Green - more vibrant
+    Z: '#f50000', // Enhanced Red - more intense
+    J: '#0050f5', // Enhanced Blue - deeper
+    L: '#f5a500', // Enhanced Orange - warmer
+    GHOST: 'rgba(255, 255, 255, 0.4)', // More visible ghost
     BORDER: '#ffffff',
-    EMPTY: '#000000'
+    EMPTY: '#000000',
+    GRID: 'rgba(255, 255, 255, 0.1)', // Subtle grid lines
+    CLEARING: '#ffffff' // Line clearing effect
 };
 
 const KEYS = {

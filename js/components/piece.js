@@ -58,13 +58,22 @@ class Piece {
     }
 
     hardDrop() {
+        let dropDistance = 0;
         while (this.moveDown()) {
-            // Keep moving down until can't
+            dropDistance++;
         }
+        return dropDistance; // Return distance for scoring
     }
 
     getGhostPosition() {
         return gameBoard.getDropPosition(this, this.x, this.y);
+    }
+
+    // Enhanced ghost piece with better positioning
+    getGhostPiece() {
+        const ghost = this.clone();
+        ghost.y = this.getGhostPosition();
+        return ghost;
     }
 
     clone() {

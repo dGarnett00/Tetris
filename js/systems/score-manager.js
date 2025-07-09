@@ -13,7 +13,7 @@ class ScoreManager {
         this.consecutiveLines = 0;
     }
 
-    calculateScore(action, linesCleared = 0, level = 1) {
+    calculateScore(action, linesCleared = 0, level = 1, dropDistance = 0) {
         let baseScore = 0;
         
         switch(action) {
@@ -21,11 +21,15 @@ class ScoreManager {
                 baseScore = this.scoreMultipliers.SOFT_DROP;
                 break;
             case 'HARD_DROP':
-                baseScore = this.scoreMultipliers.HARD_DROP;
+                baseScore = this.scoreMultipliers.HARD_DROP * dropDistance;
                 break;
             case 'LINE_CLEAR':
                 baseScore = this.getLineClearScore(linesCleared);
                 this.updateCombo(linesCleared);
+                // Bonus for back-to-back line clears
+                if (this.consecutiveLines > 1) {
+                    baseScore *= 1.5;
+                }
                 break;
             default:
                 baseScore = 0;
@@ -60,16 +64,31 @@ class ScoreManager {
     }
 
     animateScoreUpdate(points) {
-        // Visual feedback for score increase
+        // Enhanced visual feedback for score increase
         const scoreElement = document.getElementById('score');
         if (scoreElement && points > 0) {
-            scoreElement.style.transform = 'scale(1.2)';
-            scoreElement.style.color = '#ffd700';
+            scoreElement.classList.add('score-increment-animation');
+            
+            // Show points gained temporarily
+            const pointsDisplay = document.createElement('span');
+            pointsDisplay.textContent = `+${points}`;
+            pointsDisplay.style.cssText = `
+                position: absolute;
+                color: #ffd700;
+                font-size: 0.8em;
+                font-weight: bold;
+                animation: fadeIn 0.5s ease-out;
+                z-index: 1000;
+            `;
+            
+            scoreElement.parentNode.appendChild(pointsDisplay);
             
             setTimeout(() => {
-                scoreElement.style.transform = 'scale(1)';
-                scoreElement.style.color = '#ffd700';
-            }, 200);
+                scoreElement.classList.remove('score-increment-animation');
+                if (pointsDisplay.parentNode) {
+                    pointsDisplay.parentNode.removeChild(pointsDisplay);
+                }
+            }, 1000);
         }
     }
 

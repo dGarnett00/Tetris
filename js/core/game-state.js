@@ -29,8 +29,44 @@ class GameState {
     checkLevelUp() {
         const newLevel = Math.floor(this.lines / GAME_CONFIG.LINES_PER_LEVEL) + 1;
         if (newLevel > this.level) {
+            const oldLevel = this.level;
             this.level = newLevel;
             this.fallSpeed = Math.max(50, this.fallSpeed * GAME_CONFIG.SPEED_INCREASE_RATE);
+            
+            // Enhanced level up animation
+            this.animateLevelUp(oldLevel, newLevel);
+        }
+    }
+
+    animateLevelUp(oldLevel, newLevel) {
+        const levelElement = document.getElementById('level');
+        if (levelElement) {
+            levelElement.classList.add('level-up-animation');
+            
+            // Show level up message
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `Level ${newLevel}!`;
+            messageElement.style.cssText = `
+                position: fixed;
+                top: 40%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 1.5em;
+                font-weight: bold;
+                color: #4ecdc4;
+                z-index: 1000;
+                animation: levelUp 1s ease-out;
+                pointer-events: none;
+            `;
+            
+            document.body.appendChild(messageElement);
+            
+            setTimeout(() => {
+                levelElement.classList.remove('level-up-animation');
+                if (messageElement.parentNode) {
+                    messageElement.parentNode.removeChild(messageElement);
+                }
+            }, 1000);
         }
     }
 

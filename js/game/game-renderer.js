@@ -140,11 +140,21 @@ class GameRenderer {
             this.ctx.lineWidth = 2;
             this.ctx.strokeRect(pixelX, pixelY, this.cellSize, this.cellSize);
         } else {
-            // Fill cell
+            // Enhanced 3D effect for blocks
             this.ctx.fillStyle = color;
             this.ctx.fillRect(pixelX, pixelY, this.cellSize, this.cellSize);
             
-            // Draw border
+            // Add gradient effect
+            const gradient = this.ctx.createLinearGradient(
+                pixelX, pixelY, 
+                pixelX + this.cellSize, pixelY + this.cellSize
+            );
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(pixelX, pixelY, this.cellSize, this.cellSize);
+            
+            // Draw border with better styling
             this.ctx.strokeStyle = COLORS.BORDER;
             this.ctx.lineWidth = 1;
             this.ctx.strokeRect(pixelX, pixelY, this.cellSize, this.cellSize);
@@ -153,6 +163,11 @@ class GameRenderer {
             this.ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
             this.ctx.fillRect(pixelX, pixelY, this.cellSize, 2);
             this.ctx.fillRect(pixelX, pixelY, 2, this.cellSize);
+            
+            // Add shadow effect
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+            this.ctx.fillRect(pixelX + this.cellSize - 2, pixelY + 2, 2, this.cellSize - 2);
+            this.ctx.fillRect(pixelX + 2, pixelY + this.cellSize - 2, this.cellSize - 2, 2);
         }
     }
 

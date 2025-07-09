@@ -2,9 +2,10 @@
 class InputHandler {
     constructor() {
         this.keys = {};
-        this.keyRepeatDelay = 200;
-        this.keyRepeatRate = 50;
+        this.keyRepeatDelay = 150; // Reduced for better responsiveness
+        this.keyRepeatRate = 40; // Faster repeat rate
         this.lastKeyTime = {};
+        this.moveBuffer = {}; // Buffer for smooth movement
         this.setupEventListeners();
     }
 
@@ -62,31 +63,40 @@ class InputHandler {
             return;
         }
 
-        // Handle game inputs
+        // Handle game inputs with improved responsiveness
         switch(key) {
             case KEYS.LEFT:
                 if (gameManager.currentPiece) {
                     gameManager.currentPiece.moveLeft();
+                    this.provideTactileFeedback();
                 }
                 break;
             case KEYS.RIGHT:
                 if (gameManager.currentPiece) {
                     gameManager.currentPiece.moveRight();
+                    this.provideTactileFeedback();
                 }
                 break;
             case KEYS.DOWN:
                 if (gameManager.currentPiece) {
-                    gameManager.currentPiece.moveDown();
+                    if (gameManager.currentPiece.moveDown()) {
+                        // Award soft drop points
+                        const points = scoreManager.calculateScore('SOFT_DROP', 0, gameState.level);
+                        scoreManager.addScore(points);
+                    }
                 }
                 break;
             case KEYS.UP:
                 if (gameManager.currentPiece) {
                     gameManager.currentPiece.rotate();
+                    this.provideTactileFeedback();
                 }
                 break;
             case KEYS.SPACE:
                 if (gameManager.currentPiece) {
-                    gameManager.currentPiece.hardDrop();
+                    const dropDistance = gameManager.currentPiece.hardDrop();
+                    const points = scoreManager.calculateScore('HARD_DROP', 0, gameState.level, dropDistance);
+                    scoreManager.addScore(points);
                     gameManager.lockPiece();
                 }
                 break;
@@ -95,6 +105,18 @@ class InputHandler {
             case 'P':
                 gameState.setState(GAME_STATES.PAUSED);
                 break;
+        }
+    }
+
+    // Enhanced tactile feedback
+    provideTactileFeedback() {
+        // Visual feedback for piece movement
+        const gameBoard = document.getElementById('gameBoard');
+        if (gameBoard) {
+            gameBoard.style.filter = 'brightness(1.1)';
+            setTimeout(() => {
+                gameBoard.style.filter = 'brightness(1)';
+            }, 50);
         }
     }
 

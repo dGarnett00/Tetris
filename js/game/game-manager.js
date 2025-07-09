@@ -186,13 +186,26 @@ class GameManager {
     hardDrop() {
         if (this.currentPiece && gameState.canMove()) {
             const dropDistance = this.currentPiece.getGhostPosition() - this.currentPiece.y;
-            this.currentPiece.hardDrop();
+            const actualDropDistance = this.currentPiece.hardDrop();
             
-            // Award hard drop points
-            const points = scoreManager.calculateScore('HARD_DROP', 0, gameState.level) * dropDistance;
+            // Award hard drop points based on actual distance
+            const points = scoreManager.calculateScore('HARD_DROP', 0, gameState.level, actualDropDistance);
             scoreManager.addScore(points);
             
+            // Enhanced visual feedback for hard drop
+            this.showHardDropFeedback();
+            
             this.lockPiece();
+        }
+    }
+
+    showHardDropFeedback() {
+        const gameBoard = document.getElementById('gameBoard');
+        if (gameBoard) {
+            gameBoard.style.filter = 'brightness(1.3) contrast(1.1)';
+            setTimeout(() => {
+                gameBoard.style.filter = 'brightness(1) contrast(1)';
+            }, 100);
         }
     }
 

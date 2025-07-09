@@ -9,10 +9,14 @@ class LineClearer {
         const fullLines = this.findFullLines();
         
         if (fullLines.length > 0) {
+            // Enhanced line clear animation
             this.animateLineClear(fullLines);
+            
+            // Stagger the clearing for better visual effect
             setTimeout(() => {
                 this.clearLines(fullLines);
                 this.updateScore(fullLines.length);
+                this.showLineClearMessage(fullLines.length);
             }, this.animationDuration);
         }
         
@@ -53,14 +57,52 @@ class LineClearer {
         });
     }
 
+    // Enhanced line clear animation
     animateLineClear(lines) {
-        // Simple visual feedback - could be expanded
-        lines.forEach(lineIndex => {
-            for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
-                // Mark for animation (visual effect handled by renderer)
-                this.board.setCell(x, lineIndex, 'clearing');
-            }
+        // Enhanced visual feedback with staggered animation
+        lines.forEach((lineIndex, index) => {
+            setTimeout(() => {
+                for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
+                    // Mark for animation with enhanced effect
+                    this.board.setCell(x, lineIndex, 'clearing');
+                }
+            }, index * 100); // Stagger animation
         });
+    }
+
+    showLineClearMessage(linesCleared) {
+        const messages = {
+            1: 'Single!',
+            2: 'Double!',
+            3: 'Triple!',
+            4: 'TETRIS!'
+        };
+        
+        const message = messages[linesCleared];
+        if (message) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageElement.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 2em;
+                font-weight: bold;
+                color: #ffd700;
+                z-index: 1000;
+                animation: levelUp 1s ease-out;
+                pointer-events: none;
+            `;
+            
+            document.body.appendChild(messageElement);
+            
+            setTimeout(() => {
+                if (messageElement.parentNode) {
+                    messageElement.parentNode.removeChild(messageElement);
+                }
+            }, 1000);
+        }
     }
 
     updateScore(linesCleared) {
