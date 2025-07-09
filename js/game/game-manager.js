@@ -49,7 +49,7 @@ class GameManager {
     }
 
     updateLockTimer(deltaTime) {
-        if (this.currentPiece && !this.currentPiece.moveDown()) {
+        if (this.currentPiece && !gameBoard.isValidPosition(this.currentPiece, this.currentPiece.x, this.currentPiece.y + 1)) {
             this.lockTimer += deltaTime;
             
             if (this.lockTimer >= this.lockDelay && this.canLock) {

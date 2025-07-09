@@ -3,8 +3,8 @@ const GAME_CONFIG = {
     BOARD_WIDTH: 10,
     BOARD_HEIGHT: 20,
     CELL_SIZE: 30,
-    INITIAL_FALL_SPEED: 1000, // milliseconds
-    SPEED_INCREASE_RATE: 0.9, // multiply by this each level
+    INITIAL_FALL_SPEED: 2000, // milliseconds - 2 seconds per cell fall (realistic speed)
+    SPEED_INCREASE_RATE: 0.95, // multiply by this each level - very gradual speed increase
     LINES_PER_LEVEL: 10
 };
 
