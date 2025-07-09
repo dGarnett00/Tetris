@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Game</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/game-board.css">
+    <link rel="stylesheet" href="styles/ui.css">
+    <link rel="stylesheet" href="styles/animations.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Tetris</h1>
+            <div class="score-display">
+                <span>Score: <span id="score">0</span></span>
+                <span>Lines: <span id="lines">0</span></span>
+                <span>Level: <span id="level">1</span></span>
+            </div>
+        </div>
+        
+        <div class="game-content">
+            <div class="game-board-container">
+                <canvas id="gameBoard" width="300" height="600"></canvas>
+                <div class="game-overlay" id="gameOverlay">
+                    <div class="game-message" id="gameMessage">
+                        <h2>Game Over</h2>
+                        <p>Press SPACE to restart</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-info">
+                <div class="next-piece">
+                    <h3>Next</h3>
+                    <canvas id="nextPiece" width="80" height="80"></canvas>
+                </div>
+                
+                <div class="controls">
+                    <h3>Controls</h3>
+                    <div class="control-item">
+                        <span>Move:</span>
+                        <span>← →</span>
+                    </div>
+                    <div class="control-item">
+                        <span>Rotate:</span>
+                        <span>↑</span>
+                    </div>
+                    <div class="control-item">
+                        <span>Drop:</span>
+                        <span>↓</span>
+                    </div>
+                    <div class="control-item">
+                        <span>Pause:</span>
+                        <span>P</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Game Scripts -->
+    <script src="js/core/constants.js"></script>
+    <script src="js/core/game-state.js"></script>
+    
+    <!-- Game Components -->
+    <script src="js/components/board.js"></script>
+    <script src="js/components/piece.js"></script>
+    <script src="js/components/shapes.js"></script>
+    
+    <!-- Game Systems -->
+    <script src="js/systems/input-handler.js"></script>
+    <script src="js/systems/collision-detector.js"></script>
+    <script src="js/systems/line-clearer.js"></script>
+    <script src="js/systems/score-manager.js"></script>
+    
+    <!-- Game Logic -->
+    <script src="js/game/game-loop.js"></script>
+    <script src="js/game/game-renderer.js"></script>
+    <script src="js/game/game-manager.js"></script>
+    
+    <!-- Main Entry Point -->
+    <script src="js/main.js"></script>
+</body>
+</html>
