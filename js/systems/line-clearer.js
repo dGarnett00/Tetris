@@ -1,23 +1,18 @@
 // Line Clearing System
 class LineClearer {
     constructor() {
-        this.board = gameBoard;
-        this.animationDuration = 100; // Reduced from 300ms to 100ms
+        this.animationDuration = 100;
     }
 
     checkAndClearLines() {
         const fullLines = this.findFullLines();
         
         if (fullLines.length > 0) {
-            // Enhanced line clear animation
             this.animateLineClear(fullLines);
-            
-            // Clear lines faster for better responsiveness
             setTimeout(() => {
                 this.clearLines(fullLines);
                 this.updateScore(fullLines.length);
                 this.showLineClearMessage(fullLines.length);
-                // Immediately clean up any remaining clearing states
                 this.cleanupClearingStates();
             }, this.animationDuration);
         }
@@ -25,179 +20,93 @@ class LineClearer {
         return fullLines.length;
     }
 
-    cleanupClearingStates() {
-        // Ensure all 'clearing' states are removed
-        for (let y = 0; y < GAME_CONFIG.BOARD_HEIGHT; y++) {
-            for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
-                if (this.board.getCell(x, y) === 'clearing') {
-                    this.board.setCell(x, y, 0);
-                }
-            }
-        }
-    }
-
     findFullLines() {
         const fullLines = [];
-        
         for (let y = 0; y < GAME_CONFIG.BOARD_HEIGHT; y++) {
             let isFullLine = true;
-            
             for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
-                if (this.board.getCell(x, y) === 0) {
+                if (gameBoard.getCell(x, y) === 0) {
                     isFullLine = false;
                     break;
                 }
             }
-            
-            if (isFullLine) {
-                fullLines.push(y);
-            }
+            if (isFullLine) fullLines.push(y);
         }
-        
         return fullLines;
     }
 
     clearLines(lines) {
-        // Sort lines in descending order to avoid index shifting issues
         lines.sort((a, b) => b - a);
-        
-        // Remove cleared lines and let blocks above fall down
-        lines.forEach(lineIndex => {
-            // Remove the cleared line
-            this.board.grid.splice(lineIndex, 1);
-        });
-        
-        // Add empty lines at the top to maintain board height
+        lines.forEach(lineIndex => gameBoard.grid.splice(lineIndex, 1));
         for (let i = 0; i < lines.length; i++) {
-            this.board.grid.unshift(new Array(GAME_CONFIG.BOARD_WIDTH).fill(0));
+            gameBoard.grid.unshift(new Array(GAME_CONFIG.BOARD_WIDTH).fill(0));
         }
-        
-        // Apply gravity to make floating pieces fall
         this.applyGravity();
     }
 
     applyGravity() {
-        // Make all floating pieces fall down
         for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
-            // Collect all non-empty blocks in this column
             const column = [];
             for (let y = GAME_CONFIG.BOARD_HEIGHT - 1; y >= 0; y--) {
-                const cell = this.board.getCell(x, y);
+                const cell = gameBoard.getCell(x, y);
                 if (cell !== 0 && cell !== 'clearing') {
                     column.push(cell);
                 }
             }
             
-            // Clear the column
             for (let y = 0; y < GAME_CONFIG.BOARD_HEIGHT; y++) {
-                this.board.setCell(x, y, 0);
+                gameBoard.setCell(x, y, 0);
             }
             
-            // Place blocks at the bottom
             for (let i = 0; i < column.length; i++) {
                 const y = GAME_CONFIG.BOARD_HEIGHT - 1 - i;
-                this.board.setCell(x, y, column[i]);
+                gameBoard.setCell(x, y, column[i]);
             }
         }
     }
 
-    // Enhanced line clear animation
     animateLineClear(lines) {
-        // Enhanced visual feedback with faster staggered animation
         lines.forEach((lineIndex, index) => {
             setTimeout(() => {
                 for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
-                    // Mark for animation with enhanced effect
-                    this.board.setCell(x, lineIndex, 'clearing');
+                    gameBoard.setCell(x, lineIndex, 'clearing');
                 }
-            }, index * 25); // Reduced stagger from 100ms to 25ms
+            }, index * 25);
         });
     }
 
     showLineClearMessage(linesCleared) {
-        const messages = {
-            1: 'Single!',
-            2: 'Double!',
-            3: 'Triple!',
-            4: 'TETRIS!'
-        };
-        
+        const messages = ['', 'Single!', 'Double!', 'Triple!', 'TETRIS!'];
         const message = messages[linesCleared];
         if (message) {
             const messageElement = document.createElement('div');
             messageElement.textContent = message;
             messageElement.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 2em;
-                font-weight: bold;
-                color: #ffd700;
-                z-index: 1000;
-                animation: levelUp 1s ease-out;
-                pointer-events: none;
+                position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                font-size: 2em; font-weight: bold; color: #ffd700; z-index: 1000;
+                animation: levelUp 1s ease-out; pointer-events: none;
             `;
-            
             document.body.appendChild(messageElement);
-            
-            setTimeout(() => {
-                if (messageElement.parentNode) {
-                    messageElement.parentNode.removeChild(messageElement);
-                }
-            }, 1000);
+            setTimeout(() => messageElement.remove(), 1000);
         }
     }
 
     updateScore(linesCleared) {
-        // Score based on number of lines cleared simultaneously
         const baseScore = [0, 100, 300, 500, 800];
         const points = baseScore[linesCleared] || 800;
-        const levelMultiplier = gameState.level;
-        
-        gameState.updateScore(points * levelMultiplier);
+        gameState.updateScore(points * gameState.level);
         gameState.updateLines(linesCleared);
     }
 
-    getLineScore(linesCleared) {
-        const scores = {
-            1: 100,   // Single
-            2: 300,   // Double
-            3: 500,   // Triple
-            4: 800    // Tetris
-        };
-        return scores[linesCleared] || 0;
-    }
-
-    // Check if a specific line is full
-    isLineFull(lineIndex) {
-        for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
-            if (this.board.getCell(x, lineIndex) === 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // Get number of holes in the board (for AI or advanced scoring)
-    getHoleCount() {
-        let holes = 0;
-        
-        for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
-            let foundBlock = false;
-            
-            for (let y = 0; y < GAME_CONFIG.BOARD_HEIGHT; y++) {
-                if (this.board.getCell(x, y) !== 0) {
-                    foundBlock = true;
-                } else if (foundBlock) {
-                    holes++;
+    cleanupClearingStates() {
+        for (let y = 0; y < GAME_CONFIG.BOARD_HEIGHT; y++) {
+            for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
+                if (gameBoard.getCell(x, y) === 'clearing') {
+                    gameBoard.setCell(x, y, 0);
                 }
             }
         }
-        
-        return holes;
     }
 }
 
-// Create global line clearer
 window.lineClearer = new LineClearer();

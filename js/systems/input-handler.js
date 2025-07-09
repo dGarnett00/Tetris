@@ -2,10 +2,9 @@
 class InputHandler {
     constructor() {
         this.keys = {};
-        this.keyRepeatDelay = 150; // Reduced for better responsiveness
-        this.keyRepeatRate = 40; // Faster repeat rate
+        this.keyRepeatDelay = 150;
+        this.keyRepeatRate = 40;
         this.lastKeyTime = {};
-        this.moveBuffer = {}; // Buffer for smooth movement
         this.setupEventListeners();
     }
 
@@ -20,77 +19,53 @@ class InputHandler {
         const key = event.key;
         const currentTime = Date.now();
         
-        // Check if key is already pressed and handle repeat
-        if (this.keys[key]) {
-            if (currentTime - this.lastKeyTime[key] < this.keyRepeatRate) {
-                return;
-            }
-        } else {
-            this.keys[key] = true;
-            if (currentTime - (this.lastKeyTime[key] || 0) < this.keyRepeatDelay) {
-                return;
-            }
-        }
+        if (this.keys[key] && currentTime - this.lastKeyTime[key] < this.keyRepeatRate) return;
+        if (!this.keys[key] && currentTime - (this.lastKeyTime[key] || 0) < this.keyRepeatDelay) return;
         
+        this.keys[key] = true;
         this.lastKeyTime[key] = currentTime;
         this.processInput(key);
     }
 
     handleKeyUp(event) {
-        const key = event.key;
-        this.keys[key] = false;
+        this.keys[event.key] = false;
     }
 
     processInput(key) {
+        // Non-game inputs
         if (!gameState.canMove()) {
-            // Handle non-game inputs
             switch(key) {
                 case KEYS.SPACE:
-                    if (gameState.currentState === GAME_STATES.GAME_OVER) {
-                        gameManager.restart();
-                    }
+                    if (gameState.currentState === GAME_STATES.GAME_OVER) gameManager.restart();
                     break;
                 case KEYS.PAUSE:
                 case 'p':
                 case 'P':
-                    if (gameState.currentState === GAME_STATES.PLAYING) {
-                        gameState.setState(GAME_STATES.PAUSED);
-                    } else if (gameState.currentState === GAME_STATES.PAUSED) {
-                        gameState.setState(GAME_STATES.PLAYING);
-                    }
+                    gameState.setState(gameState.currentState === GAME_STATES.PLAYING ? GAME_STATES.PAUSED : GAME_STATES.PLAYING);
                     break;
             }
             return;
         }
 
-        // Handle game inputs with improved responsiveness
+        // Game inputs
         switch(key) {
             case KEYS.LEFT:
-                if (gameManager.currentPiece) {
-                    gameManager.currentPiece.moveLeft();
-                    this.provideTactileFeedback();
-                }
+                gameManager.currentPiece?.moveLeft();
+                this.provideFeedback();
                 break;
             case KEYS.RIGHT:
-                if (gameManager.currentPiece) {
-                    gameManager.currentPiece.moveRight();
-                    this.provideTactileFeedback();
-                }
+                gameManager.currentPiece?.moveRight();
+                this.provideFeedback();
                 break;
             case KEYS.DOWN:
-                if (gameManager.currentPiece) {
-                    if (gameManager.currentPiece.moveDown()) {
-                        // Award soft drop points
-                        const points = scoreManager.calculateScore('SOFT_DROP', 0, gameState.level);
-                        scoreManager.addScore(points);
-                    }
+                if (gameManager.currentPiece?.moveDown()) {
+                    const points = scoreManager.calculateScore('SOFT_DROP', 0, gameState.level);
+                    scoreManager.addScore(points);
                 }
                 break;
             case KEYS.UP:
-                if (gameManager.currentPiece) {
-                    gameManager.currentPiece.rotate();
-                    this.provideTactileFeedback();
-                }
+                gameManager.currentPiece?.rotate();
+                this.provideFeedback();
                 break;
             case KEYS.SPACE:
                 if (gameManager.currentPiece) {
@@ -108,22 +83,13 @@ class InputHandler {
         }
     }
 
-    // Enhanced tactile feedback
-    provideTactileFeedback() {
-        // Visual feedback for piece movement
+    provideFeedback() {
         const gameBoard = document.getElementById('gameBoard');
         if (gameBoard) {
             gameBoard.style.filter = 'brightness(1.1)';
-            setTimeout(() => {
-                gameBoard.style.filter = 'brightness(1)';
-            }, 50);
+            setTimeout(() => gameBoard.style.filter = 'brightness(1)', 50);
         }
-    }
-
-    isKeyPressed(key) {
-        return this.keys[key] || false;
     }
 }
 
-// Create global input handler
 window.inputHandler = new InputHandler();

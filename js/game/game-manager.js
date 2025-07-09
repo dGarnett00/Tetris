@@ -1,22 +1,17 @@
-// Game Manager - Main Game Logic Controller
+// Game Manager - Core Game Logic
 class GameManager {
     constructor() {
         this.currentPiece = null;
         this.nextPiece = null;
         this.pieceFactory = new PieceFactory();
-        this.lockDelay = 500; // milliseconds before piece locks
+        this.lockDelay = 500;
         this.lockTimer = 0;
-        this.canLock = true;
-        
         this.initialize();
     }
 
     initialize() {
-        // Generate first pieces
         this.nextPiece = this.pieceFactory.getNextPiece();
         this.spawnNextPiece();
-        
-        // Set initial game state
         gameState.setState(GAME_STATES.PLAYING);
         gameState.updateDisplay();
     }
@@ -26,35 +21,20 @@ class GameManager {
         this.nextPiece = null;
         this.pieceFactory = new PieceFactory();
         this.lockTimer = 0;
-        this.canLock = true;
-        
-        // Reset game systems
         scoreManager.resetCombo();
-        
         this.initialize();
     }
 
     update(deltaTime) {
-        if (!gameState.isPlaying()) {
-            return;
-        }
-
-        // Update lock timer
+        if (!gameState.isPlaying()) return;
         this.updateLockTimer(deltaTime);
-        
-        // Check for game over
-        if (this.checkGameOver()) {
-            this.gameOver();
-        }
+        if (this.checkGameOver()) this.gameOver();
     }
 
     updateLockTimer(deltaTime) {
         if (this.currentPiece && !gameBoard.isValidPosition(this.currentPiece, this.currentPiece.x, this.currentPiece.y + 1)) {
             this.lockTimer += deltaTime;
-            
-            if (this.lockTimer >= this.lockDelay && this.canLock) {
-                this.lockPiece();
-            }
+            if (this.lockTimer >= this.lockDelay) this.lockPiece();
         } else {
             this.lockTimer = 0;
         }
@@ -63,12 +43,7 @@ class GameManager {
     spawnNextPiece() {
         this.currentPiece = this.nextPiece;
         this.nextPiece = this.pieceFactory.getNextPiece();
-        
-        // Reset lock timer
         this.lockTimer = 0;
-        this.canLock = true;
-        
-        // Check if piece can spawn
         if (!gameBoard.isValidPosition(this.currentPiece, this.currentPiece.x, this.currentPiece.y)) {
             this.gameOver();
         }
@@ -76,125 +51,78 @@ class GameManager {
 
     lockPiece() {
         if (!this.currentPiece) return;
-        
-        // Place piece on board
         gameBoard.placePiece(this.currentPiece, this.currentPiece.x, this.currentPiece.y);
-        
-        // Check and clear lines
         const linesCleared = lineClearer.checkAndClearLines();
-        
-        // Update score
         if (linesCleared > 0) {
             const points = scoreManager.calculateScore('LINE_CLEAR', linesCleared, gameState.level);
             scoreManager.addScore(points);
         }
-        
-        // Spawn next piece
         this.spawnNextPiece();
     }
 
     checkGameOver() {
-        // Check if blocks have reached the top
         for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
-            if (gameBoard.getCell(x, 0) !== 0) {
-                return true;
-            }
+            if (gameBoard.getCell(x, 0) !== 0) return true;
         }
-        
-        // Check if current piece can't move from spawn position
-        if (this.currentPiece) {
-            return !gameBoard.isValidPosition(this.currentPiece, this.currentPiece.x, this.currentPiece.y);
-        }
-        
-        return false;
+        return this.currentPiece && !gameBoard.isValidPosition(this.currentPiece, this.currentPiece.x, this.currentPiece.y);
     }
 
     gameOver() {
         gameState.setState(GAME_STATES.GAME_OVER);
-        
-        // Save high score
         const isNewHighScore = scoreManager.setHighScore(gameState.score);
-        
-        // Show game over message
         this.showGameOverMessage(isNewHighScore);
-        
-        // Stop game loop
-        if (gameLoop) {
-            gameLoop.stop();
-        }
+        gameLoop?.stop();
     }
 
     showGameOverMessage(isNewHighScore) {
         const message = document.getElementById('gameMessage');
         const highScoreText = isNewHighScore ? '<p style="color: #ffd700;">New High Score!</p>' : '';
-        
-        message.innerHTML = `
-            <h2>Game Over</h2>
-            <p>Score: ${gameState.score}</p>
-            <p>Lines: ${gameState.lines}</p>
-            <p>Level: ${gameState.level}</p>
-            ${highScoreText}
-            <p>Press SPACE to restart</p>
-        `;
+        message.innerHTML = `<h2>Game Over</h2><p>Score: ${gameState.score}</p><p>Lines: ${gameState.lines}</p><p>Level: ${gameState.level}</p>${highScoreText}<p>Press SPACE to restart</p>`;
     }
 
     restart() {
-        // Reset all game systems
         gameState.reset();
         gameBoard.reset();
         this.reset();
-        
-        // Restart game loop
-        if (gameLoop) {
-            gameLoop.restart();
-        }
+        gameLoop?.restart();
     }
 
-    // Movement helpers
+    // Movement methods
     movePieceLeft() {
         if (this.currentPiece && gameState.canMove()) {
             this.currentPiece.moveLeft();
-            this.resetLockTimer();
+            this.lockTimer = 0;
         }
     }
 
     movePieceRight() {
         if (this.currentPiece && gameState.canMove()) {
             this.currentPiece.moveRight();
-            this.resetLockTimer();
+            this.lockTimer = 0;
         }
     }
 
     movePieceDown() {
-        if (this.currentPiece && gameState.canMove()) {
-            if (this.currentPiece.moveDown()) {
-                // Award soft drop points
-                const points = scoreManager.calculateScore('SOFT_DROP', 0, gameState.level);
-                scoreManager.addScore(points);
-                this.resetLockTimer();
-            }
+        if (this.currentPiece && gameState.canMove() && this.currentPiece.moveDown()) {
+            const points = scoreManager.calculateScore('SOFT_DROP', 0, gameState.level);
+            scoreManager.addScore(points);
+            this.lockTimer = 0;
         }
     }
 
     rotatePiece() {
         if (this.currentPiece && gameState.canMove()) {
             this.currentPiece.rotate();
-            this.resetLockTimer();
+            this.lockTimer = 0;
         }
     }
 
     hardDrop() {
         if (this.currentPiece && gameState.canMove()) {
-            const dropDistance = this.currentPiece.getGhostPosition() - this.currentPiece.y;
-            const actualDropDistance = this.currentPiece.hardDrop();
-            
-            // Award hard drop points based on actual distance
-            const points = scoreManager.calculateScore('HARD_DROP', 0, gameState.level, actualDropDistance);
+            const dropDistance = this.currentPiece.hardDrop();
+            const points = scoreManager.calculateScore('HARD_DROP', 0, gameState.level, dropDistance);
             scoreManager.addScore(points);
-            
-            // Enhanced visual feedback for hard drop
             this.showHardDropFeedback();
-            
             this.lockPiece();
         }
     }
@@ -202,39 +130,28 @@ class GameManager {
     showHardDropFeedback() {
         const gameBoard = document.getElementById('gameBoard');
         if (gameBoard) {
-            gameBoard.style.filter = 'brightness(1.3) contrast(1.1)';
-            setTimeout(() => {
-                gameBoard.style.filter = 'brightness(1) contrast(1)';
-            }, 100);
+            gameBoard.style.filter = 'brightness(1.3)';
+            setTimeout(() => gameBoard.style.filter = 'brightness(1)', 100);
         }
     }
 
-    resetLockTimer() {
-        this.lockTimer = 0;
-    }
-
-    // Utility methods
+    // Getters
     getCurrentPieceInfo() {
-        if (!this.currentPiece) return null;
-        
-        return {
+        return this.currentPiece ? {
             type: this.currentPiece.type,
             x: this.currentPiece.x,
             y: this.currentPiece.y,
             rotation: this.currentPiece.currentRotation,
             ghostY: this.currentPiece.getGhostPosition()
-        };
+        } : null;
     }
 
     getNextPieceInfo() {
-        if (!this.nextPiece) return null;
-        
-        return {
+        return this.nextPiece ? {
             type: this.nextPiece.type,
             shape: this.nextPiece.getCurrentShape()
-        };
+        } : null;
     }
 }
 
-// Create global game manager
 window.gameManager = new GameManager();

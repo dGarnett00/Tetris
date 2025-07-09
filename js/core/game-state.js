@@ -29,55 +29,44 @@ class GameState {
     checkLevelUp() {
         const newLevel = Math.floor(this.lines / GAME_CONFIG.LINES_PER_LEVEL) + 1;
         if (newLevel > this.level) {
-            const oldLevel = this.level;
             this.level = newLevel;
             this.fallSpeed = Math.max(50, this.fallSpeed * GAME_CONFIG.SPEED_INCREASE_RATE);
-            
-            // Enhanced level up animation
-            this.animateLevelUp(oldLevel, newLevel);
+            this.animateLevelUp(newLevel);
         }
     }
 
-    animateLevelUp(oldLevel, newLevel) {
+    animateLevelUp(newLevel) {
         const levelElement = document.getElementById('level');
         if (levelElement) {
             levelElement.classList.add('level-up-animation');
             
-            // Show level up message
             const messageElement = document.createElement('div');
             messageElement.textContent = `Level ${newLevel}!`;
             messageElement.style.cssText = `
-                position: fixed;
-                top: 40%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                font-size: 1.5em;
-                font-weight: bold;
-                color: #4ecdc4;
-                z-index: 1000;
-                animation: levelUp 1s ease-out;
-                pointer-events: none;
+                position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);
+                font-size: 1.5em; font-weight: bold; color: #4ecdc4; z-index: 1000;
+                animation: levelUp 1s ease-out; pointer-events: none;
             `;
             
             document.body.appendChild(messageElement);
             
             setTimeout(() => {
                 levelElement.classList.remove('level-up-animation');
-                if (messageElement.parentNode) {
-                    messageElement.parentNode.removeChild(messageElement);
-                }
+                messageElement.remove();
             }, 1000);
         }
     }
 
     updateDisplay() {
-        const scoreElement = document.getElementById('score');
-        const linesElement = document.getElementById('lines');
-        const levelElement = document.getElementById('level');
-
-        if (scoreElement) scoreElement.textContent = this.score;
-        if (linesElement) linesElement.textContent = this.lines;
-        if (levelElement) levelElement.textContent = this.level;
+        const elements = {
+            score: document.getElementById('score'),
+            lines: document.getElementById('lines'),
+            level: document.getElementById('level')
+        };
+        
+        if (elements.score) elements.score.textContent = this.score;
+        if (elements.lines) elements.lines.textContent = this.lines;
+        if (elements.level) elements.level.textContent = this.level;
     }
 
     setState(newState) {
@@ -115,5 +104,4 @@ class GameState {
     }
 }
 
-// Create global game state instance
 window.gameState = new GameState();
