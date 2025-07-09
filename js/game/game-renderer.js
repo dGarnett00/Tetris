@@ -173,7 +173,7 @@ class GameRenderer {
 
     getCellColor(cellValue) {
         if (cellValue === 'clearing') {
-            return '#ffffff';
+            return COLORS.CLEARING;
         }
         return COLORS[cellValue] || COLORS.EMPTY;
     }

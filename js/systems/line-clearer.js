@@ -2,7 +2,7 @@
 class LineClearer {
     constructor() {
         this.board = gameBoard;
-        this.animationDuration = 300;
+        this.animationDuration = 100; // Reduced from 300ms to 100ms
     }
 
     checkAndClearLines() {
@@ -12,15 +12,28 @@ class LineClearer {
             // Enhanced line clear animation
             this.animateLineClear(fullLines);
             
-            // Stagger the clearing for better visual effect
+            // Clear lines faster for better responsiveness
             setTimeout(() => {
                 this.clearLines(fullLines);
                 this.updateScore(fullLines.length);
                 this.showLineClearMessage(fullLines.length);
+                // Immediately clean up any remaining clearing states
+                this.cleanupClearingStates();
             }, this.animationDuration);
         }
         
         return fullLines.length;
+    }
+
+    cleanupClearingStates() {
+        // Ensure all 'clearing' states are removed
+        for (let y = 0; y < GAME_CONFIG.BOARD_HEIGHT; y++) {
+            for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
+                if (this.board.getCell(x, y) === 'clearing') {
+                    this.board.setCell(x, y, 0);
+                }
+            }
+        }
     }
 
     findFullLines() {
@@ -59,14 +72,14 @@ class LineClearer {
 
     // Enhanced line clear animation
     animateLineClear(lines) {
-        // Enhanced visual feedback with staggered animation
+        // Enhanced visual feedback with faster staggered animation
         lines.forEach((lineIndex, index) => {
             setTimeout(() => {
                 for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
                     // Mark for animation with enhanced effect
                     this.board.setCell(x, lineIndex, 'clearing');
                 }
-            }, index * 100); // Stagger animation
+            }, index * 25); // Reduced stagger from 100ms to 25ms
         });
     }
 
