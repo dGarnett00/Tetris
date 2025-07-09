@@ -61,13 +61,44 @@ class LineClearer {
         // Sort lines in descending order to avoid index shifting issues
         lines.sort((a, b) => b - a);
         
-        // Remove each line and add empty line at top
+        // Remove cleared lines and let blocks above fall down
         lines.forEach(lineIndex => {
-            // Remove the line
+            // Remove the cleared line
             this.board.grid.splice(lineIndex, 1);
-            // Add empty line at the top
-            this.board.grid.unshift(new Array(GAME_CONFIG.BOARD_WIDTH).fill(0));
         });
+        
+        // Add empty lines at the top to maintain board height
+        for (let i = 0; i < lines.length; i++) {
+            this.board.grid.unshift(new Array(GAME_CONFIG.BOARD_WIDTH).fill(0));
+        }
+        
+        // Apply gravity to make floating pieces fall
+        this.applyGravity();
+    }
+
+    applyGravity() {
+        // Make all floating pieces fall down
+        for (let x = 0; x < GAME_CONFIG.BOARD_WIDTH; x++) {
+            // Collect all non-empty blocks in this column
+            const column = [];
+            for (let y = GAME_CONFIG.BOARD_HEIGHT - 1; y >= 0; y--) {
+                const cell = this.board.getCell(x, y);
+                if (cell !== 0 && cell !== 'clearing') {
+                    column.push(cell);
+                }
+            }
+            
+            // Clear the column
+            for (let y = 0; y < GAME_CONFIG.BOARD_HEIGHT; y++) {
+                this.board.setCell(x, y, 0);
+            }
+            
+            // Place blocks at the bottom
+            for (let i = 0; i < column.length; i++) {
+                const y = GAME_CONFIG.BOARD_HEIGHT - 1 - i;
+                this.board.setCell(x, y, column[i]);
+            }
+        }
     }
 
     // Enhanced line clear animation
