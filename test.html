@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tetris Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h2>Tetris Game Loading Test</h2>
+    <div id="results"></div>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.className = isError ? 'error' : 'success';
+            div.textContent = message;
+            results.appendChild(div);
+        }
+        
+        // Test loading each script file
+        const scripts = [
+            'js/core/constants.js',
+            'js/core/game-state.js',
+            'js/components/board.js',
+            'js/components/piece.js',
+            'js/components/shapes.js',
+            'js/systems/input-handler.js',
+            'js/systems/line-clearer.js',
+            'js/systems/score-manager.js',
+            'js/game/game-loop.js',
+            'js/game/game-renderer.js',
+            'js/game/game-manager.js',
+            'main.js'
+        ];
+        
+        let loadedScripts = 0;
+        
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = src;
+                script.onload = () => {
+                    log(`✓ Loaded: ${src}`);
+                    loadedScripts++;
+                    resolve();
+                };
+                script.onerror = () => {
+                    log(`✗ Failed to load: ${src}`, true);
+                    reject(new Error(`Failed to load ${src}`));
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
+        async function testGame() {
+            try {
+                for (const script of scripts) {
+                    await loadScript(script);
+                }
+                
+                log(`\n✓ All ${loadedScripts} scripts loaded successfully`);
+                
+                // Test if main objects exist
+                const objects = ['GAME_CONFIG', 'gameState', 'gameBoard', 'gameManager', 'gameRenderer', 'gameLoop', 'inputHandler', 'scoreManager', 'lineClearer'];
+                
+                for (const obj of objects) {
+                    if (window[obj]) {
+                        log(`✓ Object ${obj} exists`);
+                    } else {
+                        log(`✗ Object ${obj} missing`, true);
+                    }
+                }
+                
+                log('\n✓ Game initialization test completed');
+                
+            } catch (error) {
+                log(`\n✗ Error during loading: ${error.message}`, true);
+            }
+        }
+        
+        testGame();
+    </script>
+</body>
+</html>

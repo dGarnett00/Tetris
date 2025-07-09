@@ -14,6 +14,7 @@
                 <span>Score: <span id="score">0</span></span>
                 <span>Lines: <span id="lines">0</span></span>
                 <span>Level: <span id="level">1</span></span>
+                <span>Combo: <span id="combo">0</span></span>
             </div>
         </div>
         
@@ -34,6 +35,27 @@
                     <canvas id="nextPiece" width="80" height="80"></canvas>
                 </div>
                 
+                <div class="hold-piece">
+                    <h3>Hold</h3>
+                    <canvas id="holdPiece" width="80" height="80"></canvas>
+                </div>
+                
+                <div class="game-stats">
+                    <h3>Statistics</h3>
+                    <div class="stat-item">
+                        <span>PPS:</span>
+                        <span id="pps">0.0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Time:</span>
+                        <span id="gameTime">00:00</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Efficiency:</span>
+                        <span id="efficiency">0%</span>
+                    </div>
+                </div>
+                
                 <div class="controls">
                     <h3>Controls</h3>
                     <div class="control-item">
@@ -45,8 +67,16 @@
                         <span>↑</span>
                     </div>
                     <div class="control-item">
-                        <span>Drop:</span>
+                        <span>Soft Drop:</span>
                         <span>↓</span>
+                    </div>
+                    <div class="control-item">
+                        <span>Hard Drop:</span>
+                        <span>Space</span>
+                    </div>
+                    <div class="control-item">
+                        <span>Hold:</span>
+                        <span>H</span>
                     </div>
                     <div class="control-item">
                         <span>Pause:</span>
