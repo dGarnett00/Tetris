@@ -31,6 +31,7 @@ A fully functional, professional Tetris game built with HTML5, CSS3, and JavaScr
 ```
 Tetris/
 ├── index.html                 # Main HTML file
+├── main.js                    # Main entry point and initialization
 ├── styles/                    # CSS Stylesheets
 │   ├── main.css              # Main layout and base styles
 │   ├── game-board.css        # Game board specific styles
@@ -49,11 +50,10 @@ Tetris/
 │   │   ├── collision-detector.js # Collision detection
 │   │   ├── line-clearer.js   # Line clearing logic
 │   │   └── score-manager.js  # Score calculation and management
-│   ├── game/                 # Main game logic
-│   │   ├── game-loop.js      # Game loop and timing
-│   │   ├── game-renderer.js  # Rendering system
-│   │   └── game-manager.js   # Main game controller
-│   └── main.js               # Entry point and initialization
+│   └── game/                 # Main game logic
+│       ├── game-loop.js      # Game loop and timing
+│       ├── game-renderer.js  # Rendering system
+│       └── game-manager.js   # Main game controller
 └── README.md                 # This file
 ```
 
